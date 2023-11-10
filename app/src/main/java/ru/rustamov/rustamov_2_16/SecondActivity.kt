@@ -45,8 +45,8 @@ class SecondActivity : AppCompatActivity() {
             val addItemIntent = Intent()
             addItemIntent.putExtra("title", titleDb)
             addItemIntent.putExtra("description", descriptionDb)
-            addItemIntent.putExtra("timeDb", timeDb)
-            addItemIntent.putExtra("dateDb", dateDb)
+            addItemIntent.putExtra("time", timeDb)
+            addItemIntent.putExtra("date", dateDb)
 
             setResult(Activity.RESULT_OK, addItemIntent)
             finish()

@@ -1,5 +1,6 @@
 package ru.rustamov.rustamov_2_16
 
+import DbHelper
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -42,30 +43,24 @@ class MainActivity : AppCompatActivity() {
     var isLangChanged: Boolean = false
     val app = MyApp()
 
-    //lateinit var databaseHelper: DatabaseHelper
-    //lateinit var db: SQLiteDatabase
+    lateinit var dbHelper: DbHelper
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //databaseHelper = DatabaseHelper(this)
-        //db = databaseHelper.writableDatabase
-
+        dbHelper = DbHelper(this)
         listView = findViewById(R.id.listView)
+
+
         title = findViewById(R.id.textView)
         addButton = findViewById(R.id.floatingActionButton2)
         changeLang = findViewById(R.id.floatingActionButton)
-
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1,todos)
         listView.adapter = adapter
 
-
-
-
-
-
+        showAllTasks()
         createNotificationChannel()
         ChangeLanguage()
         addButton.setOnClickListener{
@@ -77,6 +72,18 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //Отображение всех задач
+    private fun showAllTasks() {
+        todos.clear()
+
+        val allTasks = dbHelper.getAllTasks()
+        for (task in allTasks) {
+            todos.add(task.toString())
+        }
+        adapter.notifyDataSetChanged()
+    }
+
+    //Смена языка
     fun ChangeLanguage(){
         changeLang.setOnClickListener{
             if(!isLangChanged) {
@@ -92,14 +99,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    //Событие, которое получает введённые значение от пользователя со второго макета
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
-            val titleDb = data.getStringExtra("titleDb") ?: ""
-            val descriptionDb = data.getStringExtra("descriptionDb") ?: ""
-            val timeDb = data.getStringExtra("timeDb")?: ""
-            val dateDb = data.getStringExtra("dateDb")?: ""
+            val titleDb = data.getStringExtra("title") ?: ""
+            val descriptionDb = data.getStringExtra("description") ?: ""
+            val timeDb = data.getStringExtra("time")?: ""
+            val dateDb = data.getStringExtra("date")?: ""
 
             addItem(titleDb,descriptionDb,timeDb,dateDb)
             /*newItem?.let {
@@ -108,9 +115,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    //Добавление задачи в базу данных
     fun addItem(title: String, description: String, time: String, date: String) {
-
+        val task = Task(title,description,time,date)
+        val db = DbHelper(this)
+        db.addTask(task)
+        showAllTasks()
         adapter.notifyDataSetChanged()
         if(isLangChanged) {
             Toast.makeText(this, "Added item", Toast.LENGTH_SHORT).show()
@@ -123,6 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //Создание уведомления о добавлении данных в таблицу
     private fun createNotificationChannel(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val name = "Notification title"
@@ -138,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Отправка сообщения о добавления данных в таблицу
     @SuppressLint("MissingPermission")
     private fun sendNotification(){
 
