@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var addButton: FloatingActionButton
     lateinit var changeLang: FloatingActionButton
     lateinit var deleteButton: FloatingActionButton
+    lateinit var editButton: FloatingActionButton
 
     //lateinit var adapter: ArrayAdapter<String>
     private lateinit var adapter: TaskAdapter
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         title = findViewById(R.id.textView)
         addButton = findViewById(R.id.floatingActionButton2)
         deleteButton = findViewById(R.id.floatingActionButton4)
+        editButton = findViewById(R.id.floatingActionButton3)
         changeLang = findViewById(R.id.floatingActionButton)
 
         adapter = TaskAdapter(this, todos)
@@ -66,11 +68,18 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(addItemIntent, 1)
         }
 
+        editButton.setOnClickListener{
+            val editItemIntent = Intent(this, EditActivity::class.java)
+            editItemIntent.putExtra("taskId", selectedTask!!)
+            startActivityForResult(editItemIntent, 2)
+        }
+
         listView.setOnItemLongClickListener { parent, view, position, id ->
             selectedTask = adapter.getItem(position).id
-            //bHelper.deleteTaskById(selectedTask.id)
             true
         }
+
+
 
         deleteButton.setOnClickListener {
             selectedTask?.let { task ->
@@ -122,7 +131,26 @@ class MainActivity : AppCompatActivity() {
             /*newItem?.let {
                 addItem(it)
             }*/
+        }else if (requestCode == 2 && resultCode == Activity.RESULT_OK && data != null) {
+            // Редактирование задачи
+            val taskId = selectedTask!!
+            if (taskId != -1) {
+                val newTitle = data.getStringExtra("title") ?: ""
+                val newDescription = data.getStringExtra("description") ?: ""
+                val newTime = data.getStringExtra("time") ?: ""
+                val newDate = data.getStringExtra("date") ?: ""
+                editTask(taskId, newTitle, newDescription, newTime, newDate)
+            }
         }
+    }
+
+    fun editTask(taskId: Int, newTitle: String, newDescription: String, newTime: String, newDate: String) {
+        dbHelper = DbHelper(this)
+        val updatedTask = Task(newTitle, newDescription, newTime, newDate)
+        updatedTask.id = taskId
+        dbHelper.updateTask(updatedTask)
+        showAllTasks()
+        selectedTask = null
     }
 
     //Добавление задачи в базу данных

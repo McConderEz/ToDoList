@@ -87,4 +87,17 @@ class DbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         cursor.close()
         return tasks
     }
+
+
+    fun updateTask(task: Task) {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_TITLE, task.title)
+            put(COLUMN_DESCRIPTION, task.description)
+            put(COLUMN_TIME, task.time)
+            put(COLUMN_DATE, task.date)
+        }
+        db.update(TABLE_NAME, values, "$COLUMN_ID=?", arrayOf(task.id.toString()))
+        db.close()
+    }
 }

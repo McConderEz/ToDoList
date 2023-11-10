@@ -22,6 +22,10 @@
             android:configChanges="orientation"
             android:exported="true" />
         <activity
+            android:name=".EditActivity"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
