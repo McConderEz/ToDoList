@@ -61,4 +61,18 @@
         app:layout_constraintVertical_bias="0.069"
         app:srcCompat="@drawable/addfileinterfacesymbolofpapersheetwithtextlinesandplussign_79821"
         tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.523"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.068"
+        app:srcCompat="@drawable/udalit_c3hjnejt2mw9_64" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

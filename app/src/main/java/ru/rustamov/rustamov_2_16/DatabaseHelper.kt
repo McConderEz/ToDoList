@@ -45,6 +45,24 @@ class DbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         db.close()
     }
 
+    //Удаление задачи из БД
+    fun deleteTaskById(id: Int): Int {
+        val db = this.writableDatabase
+        val selection = "$COLUMN_ID = ?"
+        val selectionArgs = arrayOf(id.toString())
+        val deletedRows = db.delete(TABLE_NAME, selection, selectionArgs)
+        db.close()
+        return deletedRows
+    }
+    fun deleteTask(title: String): Int {
+        val db = this.writableDatabase
+        val selection = "$COLUMN_TITLE = ?"
+        val selectionArgs = arrayOf(title)
+        val deletedRows = db.delete(TABLE_NAME, selection, selectionArgs)
+        db.close()
+        return deletedRows
+    }
+
     @SuppressLint("Range")
     fun getAllTasks(): ArrayList<Task> {
         val tasks = ArrayList<Task>()
@@ -61,6 +79,7 @@ class DbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
                 val time = cursor.getString(cursor.getColumnIndex(COLUMN_TIME))
 
                 val task = Task(title, description, date, time)
+                task.id = id
                 tasks.add(task)
             } while (cursor.moveToNext())
         }

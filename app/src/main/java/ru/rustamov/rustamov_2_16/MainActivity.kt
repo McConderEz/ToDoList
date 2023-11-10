@@ -1,31 +1,23 @@
 package ru.rustamov.rustamov_2_16
 
 import DbHelper
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AppOpsManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.database.sqlite.SQLiteDatabase
-import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import android.content.ContentValues
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,12 +25,16 @@ class MainActivity : AppCompatActivity() {
     lateinit var title: TextView
     lateinit var addButton: FloatingActionButton
     lateinit var changeLang: FloatingActionButton
+    lateinit var deleteButton: FloatingActionButton
 
-    lateinit var adapter: ArrayAdapter<String>
+    //lateinit var adapter: ArrayAdapter<String>
+    private lateinit var adapter: TaskAdapter
 
-    private val todos: ArrayList<String> = ArrayList()
+    private val todos: ArrayList<Task> = ArrayList()
     private val CHANNEL_ID = "channel_id_01"
     private val notificationId = 101
+
+    private var selectedTask: Int? = null
 
     var isLangChanged: Boolean = false
     val app = MyApp()
@@ -56,8 +52,10 @@ class MainActivity : AppCompatActivity() {
 
         title = findViewById(R.id.textView)
         addButton = findViewById(R.id.floatingActionButton2)
+        deleteButton = findViewById(R.id.floatingActionButton4)
         changeLang = findViewById(R.id.floatingActionButton)
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1,todos)
+
+        adapter = TaskAdapter(this, todos)
         listView.adapter = adapter
 
         showAllTasks()
@@ -68,7 +66,19 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(addItemIntent, 1)
         }
 
+        listView.setOnItemLongClickListener { parent, view, position, id ->
+            selectedTask = adapter.getItem(position).id
+            //bHelper.deleteTaskById(selectedTask.id)
+            true
+        }
 
+        deleteButton.setOnClickListener {
+            selectedTask?.let { task ->
+                dbHelper.deleteTaskById(selectedTask!!)
+                selectedTask = null
+                showAllTasks()
+            }
+        }
 
     }
 
@@ -78,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         val allTasks = dbHelper.getAllTasks()
         for (task in allTasks) {
-            todos.add(task.toString())
+            todos.add(task)
         }
         adapter.notifyDataSetChanged()
     }
